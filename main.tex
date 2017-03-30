@@ -2,13 +2,284 @@
 \usepackage[utf8]{inputenc}
 
 \title{REA1121, Hand in 1}
-\author{Nataniel Gåsøy }
+\author{Nataniel Gåsøy, 131390}
 \date{February 2017}
 
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
+\begin{abstract}
+This is the first hand in of REA1121, mathemathics for programmers.
+\end{abstract}
 
+\section{Task 1}
+This task has been written in Python(.py), and the hand in was written with sharelatex.com.
+\vspace{10pt}
+
+\textbf{Problem 1.Yahtzee.}
+
+You are repeatedly throwing dice trying to achieve Yahtzee (all dice
+showing the same number). You are playing optimally.
+Create the 5 by 5 matrix corresponding to the Markov Chain of
+throwing Yahtzee. There will be about 20 probabilties to calculate,
+and this is an excellent opportunity to practise enumeration. Choose a
+few of these probabilities and calculate them by hand. Check your answers
+and find the rest from the webpage linked from where you found
+this document on Fronter.
+Now use matrix calculations to answer the following questions:
+\vspace{10pt}
+
+
+\textbf{a)}
+\textit{What is the probability of getting Yahtzee in 3 throws? What is the
+probability after 6 throws? Use matrices and Markov Chains to answer
+the question.}
+\vspace{10pt}
+
+I started out by making a transition matrix. after many attempts at making a program for this, i ended up hard-coding in the matrix based on the numbers from the yahtzee web page \textit{(see sourcees)}. 
+
+\begin{verbatim}
+    matrix= np.array([[ 120/1296,  900/1296,  250/1296,  25/1296,  1/1296],
+                     [ 0.0, 120/216,  80/216,  15/216,  1/216,],
+                     [ 0.0,  0.0,  25/36,  10/36,  1/36],
+                     [ 0.0,  0.0,  0.0,  5/6,  1/6],
+                     [ 0.0,  0.0,  0.0,  0.0,  1.0]]) 
+           
+\end{verbatim}
+
+after this, i multiplied the identity vector with the matrix to get 1 throw, 2 throws and then 3 throws. each time using the output vector from the previous time as the input vector for the next calculation.
+
+\begin{verbatim}
+    idVector= np.array([ 0.0,  0.0,  0.0,  0.0,  1.0]) 
+    
+    vector1= matrix.dot(idVector)
+    newVector=vector1
+    
+    vector2= matrix.dot(vector1)
+    
+    vector3= matrix.dot(vector2)
+    
+    print(newLine)
+    print ("\nThe probability of yatzhee after 3 throws is: ", vector3[0])
+                #0.04602864
+    print ("This is ", vector3[0]*100, "%")             
+                #4.60286425257 %
+\end{verbatim}
+
+then a "for" loop was created to see the probability after 6 throws. it goes up to 5 as the first "throw" is done outside the loop with the matrix and the identity vector.
+
+\begin{verbatim}
+ for p in range (5):
+        newVector=matrix.dot(newVector)
+        p+=1
+
+    print(newLine)
+    print ("\nThe probability of yatzhee after 6 throws is: ", newVector[0])           
+                #0.249084721298
+    print ("This is ", newVector[0]*100, "%")   
+                #24.9084721298 %
+\end{verbatim}
+
+\textbf{The probability of yatzhee after 3 throws is: 0.04602864}
+
+\textbf{The probability of yatzhee after 6 throws is: 0.249084721298}
+\vspace{10pt}
+
+\textbf{b)}
+\textit{What is the probability of getting Yahtzee in 4 throws? Write a
+program which runs a simulation to answer the question.}
+\vspace{10pt}
+
+here i used the vector from the start of task a, and made another step in the same calculation pattern with this.
+
+\begin{verbatim}
+    vector4= matrix.dot(vector3)
+    #print(newLine)
+    #print (vector4)            print the vector, for trouble shooting purposes
+
+    print(newLine)
+    print ("\nThe probability of yatzhee after 4 throws is: ", vector4[0])   
+                #0.100575361033
+    print ("This is ", vector4[0]*100, "%")    
+\end{verbatim}
+
+vector 4 [0] shows the probability of getting yathzee after 4 throws, and this number multiplied by 100 gives the chance percentage.
+
+\textbf{The probability of yatzhee after 4 throws is: 0.100575361033}
+
+\textbf{c)}
+\textit{After how many throws is the probability of getting Yahtzee more
+than 50 percent? After how many throws is the probability more than 90 percent?
+Use matrices and Markov Chains to answer the question.}
+\vspace{10pt}
+
+for this task, i basically ran the matrix calculation using the output vector from each time i ran the calculation as the new input vector in the new calculation while the probability of yatzhee was < 0.5 at the [0] spot of the new vector, or less than 50 percent.
+
+\begin{verbatim}
+    while v<50:    #runs untill probability of yahtzee is over 50%
+        latestVector=matrix.dot(latestVector)   
+        v=latestVector[0]*100
+        n+=1
+    print(newLine)
+    print ("The probability of yahtzee is over 50% after ", n, " throws. ")        
+                #10 throws.
+\end{verbatim}
+
+for 90 percent i used the same code, except changing 50 with 90.
+
+\begin{verbatim}
+    while v<90: #runs untill probability of yahtzee is over 90%
+        latestVector=matrix.dot(latestVector)  
+        v=latestVector[0]*100
+        n+=1
+    print(newLine)
+    print ("The probability of yahtzee is over 90% after ", n, " throws. ")       
+                #19 throws.
+\end{verbatim}
+
+\textbf{The probability of yahtzee is over 50 precent after 10 throws.}
+\textbf{The probability of yahtzee is over 90 percent after 19 throws.}
+
+\textbf{d)}
+\textit{What is the expected (average) number of throws needed to get
+Yahtzee?}
+
+in the final part of task 1, i used the same principle of using the old output matrix as the new input matrix, then ran the whole simulation 1'000'000 times is order to find the average amount of throws needed. This was done by counting each time i got a yahtzee, and dividing the total number of runs with the number of yahtzees.
+
+\begin{verbatim}
+    while i<n:
+        rand = random.uniform(0,1)    #chooses a random percentage perimiter
+        v=0
+        latestVector= matrix.dot(idVector)
+        while rand > v:    #continues untill the probability of yahtzee > "rand"
+            latestVector=matrix.dot(latestVector)  
+            v=latestVector[0]
+            i+=1
+        yahtzee+=1                                 
+    print(newLine)
+    print ("On average, you need ", n/(yahtzee), " throws to get a yahtzee. ")     
+                #ca. 10, total throws divided by number of yahtzees
+\end{verbatim}
+\textbf{On average, you need ca. 10 throws to get a yahtzee.}
+\vspace{10pt}
+
+\textbf{Problem 2. Design a 6 by 6 snakes and ladder game.}
+
+\textbf{a)}
+\textit{Write a function
+void emptySnakes();
+which creates a matrix corresponding to a Markov Chain of the empty
+6 by 6 snakes and ladder game, i.e. with no snakes or ladders.
+Write a function
+void createShortcut(int fromState, int toState);
+which modifies the matrix by changing probabilities by adding a
+shortcut from state fromState to state toState. Note that this function
+can be used to add both snakes and ladders.
+Then add some snakes and ladder to your Markov Chain.}
+\vspace{10pt}
+
+i started writing the code for creating the game matrix, or the empty board. this was first done by creating a 38 x 38 matrix full of zeros, then using a double while loop to fill inn the proper probabilities. the reason why the matrix is 38x38 and not 36x36 is because i decided to have the "start" and "end" positions  outside the board. when i reached the last column, i added the probabilities of finishing to the last column. this is due to the fact that both 5 and 6 wins the game when you are 5 away from goal so this is 2/6 change for your next throw (and so on).
+
+\begin{verbatim}
+    def emptySnakes():      
+    n=0
+
+    gameMatrix = np.zeros((38, 38))  
+        #assigning a matrix for the 6 X 6 grid, 
+        #including a space for the start and end (outside of the board)
+
+    while n<38:
+        i=1
+        while i<=6:
+            if n+i>=38:
+                gameMatrix [n][37]+=1/6          
+                    #adds 1/6 chance more for 5 steps from end, 
+                    #2/6 more for 4 steps from end and so on
+            else:
+                gameMatrix [n][n+i]+=1/6          
+                    #sets the chance to get 1-6 steps from the current location
+                    #to 1/6, [fra(|)][til(-)]
+            i+=1
+        n+=1
+    return gameMatrix
+\end{verbatim}
+
+then i created the "shortcut" function, where i basically add the fromstate value to the tostate value, as chances now are bigger to get to the tostate space (as you have more ways to get there), and then i give the fromstate a value of zero, as you can no longer land (and stay) there, as it is either the bottom of a ladder or the head of a snake.
+
+\begin{verbatim}
+       while i<=6:
+       matrix[fromState-i][toState]+=matrix[fromState-i][fromState]      
+            ##adds the value of "fromState" to "toState"
+       matrix[fromState-i][fromState]=0            
+            #sets the value of "fromState" to 0, 
+            #as there is no probability of staying here
+       i+=1
+\end{verbatim}
+
+\textbf{b)}
+\textit{What is the least number of throws needed to finish the game?}
+\vspace{10pt}
+
+first a matrix was initiated, then 3 snakes and 3 ladders were added to the board. then the number of throws were added untill the probability of reaching the goal state (newMatrix[0][37]) was >0. the count started at 1 because, as in task 1, the first "throw" of the dice was made outside the loop as this was the first time the matrixes was multiplied.
+
+\begin{verbatim}
+       newMatrix=matrix.dot(matrix) 
+
+    while newMatrix[0][37]==0:
+        count +=1
+        newMatrix=np.dot(newMatrix, matrix)     
+                #continues to check the probabilities after each throw
+        #printr (newMatrix)     #double check matrix each step
+    print ("Least number of throws needed to finish the game is: ", count)      
+                #3 throws
+    print (newLine) 
+\end{verbatim}
+
+\textbf{Least number of throws needed to finish the game is:3 throws}
+
+\textbf{c)}
+\textit{After how many throws is the probability of finishing the game more
+than 50 percent? After how many throws is the probability greater than 99 percent?}
+
+here i used pretty much the same function as in task 2b, except that instead of checking when the goal state (newMatrix[0][37]) was >0, i checked when the goal state was greater than 0.5 (or 50 percent). 
+
+\begin{verbatim}
+       while newerMatrix[0][37]<=0.5:       
+            #loop to check when the probability of a finished game is over 50%
+        throw +=1
+        newerMatrix=np.dot(newerMatrix, matrix)      
+            #continues to check the probabilities after each throw
+        #printr (newerMatrix)     #double check matrix each step
+    print ("Game finish probability over 50% at: ", throw, " throws. ")   
+                #9 throws
+    print (newLine)
+\end{verbatim}
+
+\textbf{Game finish probability over 50 percent at 9 throws}
+
+for the probability of being greater than 99 percent" part, i simply changed 0.5 with 0.99 in the same function.
+
+\begin{verbatim}
+           while newerMatrix[0][37]<=0.99:      
+                #loop to check when the probability of a finished game is over 99%
+        throw +=1
+        newerMatrix=np.dot(newerMatrix, matrix)      
+            #continues to check the probabilities after each throw
+        #printr (newerMatrix)     #double check matrix each step
+    print ("Game finish probability over 99% at: ", throw, " throws. ")   
+                #31 throws
+    print (newLine)
+\end{verbatim}
+
+\textbf{Game finish probability over 99 percent at 31 throws}
+
+\section{Sources}
+    -Notes from the REA1121 classes.
+
+    -Much help from Jonas S. Solsvik
+  
+    -http://www.datagenetics.com/blog/january42012/index.html(8/2/2017, 22.46)
+    
+    -https://no.sharelatex.com/learn/Sectionsandchapters(8/2/2017, 22.46)
 \end{document}
